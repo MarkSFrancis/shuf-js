@@ -7,6 +7,9 @@ Each record has an even probability to appear in the output, regardless of the i
 
 # Usage
 ```js
-const randomResult = shuf(generateRandomData(100000000), 5);
-console.log("Random sample from random data", randomResult);
+const randomResult = shuf(myRandomNumbers, 5);
+console.log(randomResult);
+
+// Example output:
+// [ 714315974, 58976299, 1676045960, 1381096830, 407762578 ]
 ```
