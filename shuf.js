@@ -1,0 +1,81 @@
+/**
+ * Gets a random sample, in a random order, from a dataset of unknown size
+ * @param {Iterable.<T>} datasetSource The iterable source of data
+ * @param {number} sampleSize The size of the sample to extract from the dataset
+ * @returns {Array.<T>} The random sample, as an array
+ * @template T
+ */
+export function shuf(datasetSource, sampleSize) {
+  let output = fillBaseSample(datasetSource, sampleSize);
+
+  return randomizeOutputFromDataset(datasetSource, output);
+}
+
+/**
+ * Fills the output if possible, with the minimum number of values
+ * @param {Iterable.<T>} datasetSource The iterable source of data
+ * @param {number} sampleSize The size of the sample to extract from the dataset
+ * @returns {Array.<T>} The random sample, as an array
+ * @template T
+ */
+function fillBaseSample(datasetSource, sampleSize) {
+  let totalRead = 0;
+  let filledIndexes = [];
+  let output = new Array(sampleSize);
+
+  // Spread data out filling the array
+  while (true) {
+    const iterator = datasetSource.next();
+    if (iterator.done) break;
+
+    let insertTo = Math.floor(Math.random() * output.length);
+    while (filledIndexes.includes(insertTo)) {
+      insertTo++;
+      if (insertTo === output.length) {
+        insertTo = 0;
+      }
+    }
+    output[insertTo] = {
+      value: iterator.value,
+    };
+
+    filledIndexes = [...filledIndexes, insertTo];
+
+    totalRead++;
+    if (totalRead === sampleSize) {
+      break;
+    }
+  }
+
+  if (totalRead < output.length) {
+    // Not a large enough dataset to fill the sample - trim empty values
+    output = output.filter((o) => o);
+  }
+
+  return output.map((o) => o.value);
+}
+
+/**
+ * Replaces values in the output randomly with new ones from the dataset
+ * @param {Iterable.<T>} datasetSource The iterable source of data
+ * @param {Array.<T>} output The output so far, filled with data
+ * @returns {Array.<T>} The random sample, as an array
+ * @template T
+ */
+function randomizeOutputFromDataset(datasetSource, output) {
+  const newOutput = [...output];
+  let readSoFar = output.length;
+
+  while (true) {
+    const iterator = datasetSource.next();
+    if (iterator.done) break;
+    readSoFar++;
+
+    const insertTo = Math.floor(Math.random() * readSoFar);
+    if (insertTo < newOutput.length) {
+      newOutput[insertTo] = iterator.value;
+    }
+  }
+
+  return newOutput;
+}
